@@ -414,6 +414,12 @@ function NoteEditor({ note, onChange }: NoteEditorProps) {
   // Focus management for new blocks
   const blockRefs = useRef<{ [id: string]: HTMLDivElement | null }>({});
 
+  // Only update contentEditable when block id changes, not on every keystroke
+  useEffect(() => {
+    setTitle(note.title);
+    setBlocks(note.blocks);
+  }, [note.id]);
+
   function handleBlockInput(
     id: string,
     content: string
@@ -481,6 +487,17 @@ function NoteEditor({ note, onChange }: NoteEditorProps) {
     }
   }
 
+  function handleBlockPaste(
+    e: React.ClipboardEvent<HTMLDivElement>,
+    id: string
+  ) {
+    // Prevent pasting HTML, only allow plain text
+    e.preventDefault();
+    const text = e.clipboardData.getData("text/plain");
+    document.execCommand("insertText", false, text);
+    handleBlockInput(id, text);
+  }
+
   function renderBlock(block: Block, idx: number) {
     const commonProps = {
       key: block.id,
@@ -511,6 +528,8 @@ function NoteEditor({ note, onChange }: NoteEditorProps) {
         handleBlockInput(block.id, (e.target as HTMLDivElement).innerText),
       onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) =>
         handleBlockKeyDown(e, idx, block),
+      onPaste: (e: React.ClipboardEvent<HTMLDivElement>) =>
+        handleBlockPaste(e, block.id),
       "data-block-id": block.id,
       "aria-label":
         block.type === "heading"
@@ -520,17 +539,18 @@ function NoteEditor({ note, onChange }: NoteEditorProps) {
           : "Text",
     };
 
+    // Only set initial content via dangerouslySetInnerHTML to avoid caret jump
     if (block.type === "heading") {
       return (
-        <div {...commonProps} style={{ ...commonProps.style, fontSize: 26 }}>
-          {block.content}
-        </div>
+        <div
+          {...commonProps}
+          dangerouslySetInnerHTML={{ __html: block.content.replace(/\n/g, "<br/>") }}
+        />
       );
     }
     if (block.type === "bulleted-list") {
       return (
         <div
-          {...commonProps}
           style={{
             ...commonProps.style,
             fontSize: 17,
@@ -538,6 +558,7 @@ function NoteEditor({ note, onChange }: NoteEditorProps) {
             alignItems: "flex-start",
             gap: 8,
           }}
+          key={block.id}
         >
           <span
             style={{
@@ -551,12 +572,21 @@ function NoteEditor({ note, onChange }: NoteEditorProps) {
           >
             •
           </span>
-          <span style={{ flex: 1 }}>{block.content}</span>
+          <div
+            {...commonProps}
+            style={{ ...commonProps.style, flex: 1, margin: 0, padding: 0 }}
+            dangerouslySetInnerHTML={{ __html: block.content.replace(/\n/g, "<br/>") }}
+          />
         </div>
       );
     }
     // text
-    return <div {...commonProps}>{block.content}</div>;
+    return (
+      <div
+        {...commonProps}
+        dangerouslySetInnerHTML={{ __html: block.content.replace(/\n/g, "<br/>") }}
+      />
+    );
   }
 
   return (
