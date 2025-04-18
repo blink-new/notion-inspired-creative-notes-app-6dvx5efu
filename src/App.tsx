@@ -411,14 +411,14 @@ function NoteEditor({ note, onChange }: NoteEditorProps) {
     // eslint-disable-next-line
   }, [title, blocks]);
 
-  // Focus management for new blocks
-  const blockRefs = useRef<{ [id: string]: HTMLDivElement | null }>({});
-
   // Only update contentEditable when block id changes, not on every keystroke
   useEffect(() => {
     setTitle(note.title);
     setBlocks(note.blocks);
   }, [note.id]);
+
+  // Focus management for new blocks
+  const blockRefs = useRef<{ [id: string]: HTMLDivElement | null }>({});
 
   function handleBlockInput(
     id: string,
@@ -544,7 +544,7 @@ function NoteEditor({ note, onChange }: NoteEditorProps) {
       return (
         <div
           {...commonProps}
-          dangerouslySetInnerHTML={{ __html: block.content.replace(/\n/g, "<br/>") }}
+          dangerouslySetInnerHTML={{ __html: block.content.replace(/\n/g, "<br/>") || "" }}
         />
       );
     }
@@ -575,7 +575,7 @@ function NoteEditor({ note, onChange }: NoteEditorProps) {
           <div
             {...commonProps}
             style={{ ...commonProps.style, flex: 1, margin: 0, padding: 0 }}
-            dangerouslySetInnerHTML={{ __html: block.content.replace(/\n/g, "<br/>") }}
+            dangerouslySetInnerHTML={{ __html: block.content.replace(/\n/g, "<br/>") || "" }}
           />
         </div>
       );
@@ -584,7 +584,7 @@ function NoteEditor({ note, onChange }: NoteEditorProps) {
     return (
       <div
         {...commonProps}
-        dangerouslySetInnerHTML={{ __html: block.content.replace(/\n/g, "<br/>") }}
+        dangerouslySetInnerHTML={{ __html: block.content.replace(/\n/g, "<br/>") || "" }}
       />
     );
   }
