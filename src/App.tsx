@@ -523,6 +523,9 @@ function NoteEditor({ note, onChange }: NoteEditorProps) {
         border: "none",
         width: "100%",
         outlineColor: COLORS.accent,
+        textAlign: "left", // Ensure left alignment
+        direction: "ltr",  // Ensure left-to-right
+        boxSizing: "border-box",
       } as React.CSSProperties,
       onInput: (e: React.FormEvent<HTMLDivElement>) =>
         handleBlockInput(block.id, (e.target as HTMLDivElement).innerText),
@@ -539,7 +542,6 @@ function NoteEditor({ note, onChange }: NoteEditorProps) {
           : "Text",
     };
 
-    // Only set initial content via dangerouslySetInnerHTML to avoid caret jump
     if (block.type === "heading") {
       return (
         <div
@@ -557,6 +559,8 @@ function NoteEditor({ note, onChange }: NoteEditorProps) {
             display: "flex",
             alignItems: "flex-start",
             gap: 8,
+            textAlign: "left",
+            direction: "ltr",
           }}
           key={block.id}
         >
@@ -574,7 +578,7 @@ function NoteEditor({ note, onChange }: NoteEditorProps) {
           </span>
           <div
             {...commonProps}
-            style={{ ...commonProps.style, flex: 1, margin: 0, padding: 0 }}
+            style={{ ...commonProps.style, flex: 1, margin: 0, padding: 0, textAlign: "left", direction: "ltr" }}
             dangerouslySetInnerHTML={{ __html: block.content.replace(/\n/g, "<br/>") || "" }}
           />
         </div>
@@ -600,6 +604,8 @@ function NoteEditor({ note, onChange }: NoteEditorProps) {
         marginTop: 12,
         transition: "box-shadow 0.2s",
         position: "relative",
+        textAlign: "left", // Ensure left alignment for the whole editor
+        direction: "ltr",
       }}
     >
       <input
@@ -618,6 +624,8 @@ function NoteEditor({ note, onChange }: NoteEditorProps) {
           borderRadius: 6,
           padding: "2px 0",
           transition: "background 0.15s",
+          textAlign: "left",
+          direction: "ltr",
         }}
         maxLength={80}
         aria-label="Note title"
